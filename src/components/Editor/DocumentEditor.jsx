@@ -212,8 +212,9 @@ function DocumentEditor({ content, setContent, selection, setSelection, title, s
               </svg>
             </button>
 
-            {/* Dropdown menu */}
-            <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-stone-200 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 min-w-[120px]">
+            {/* Dropdown menu - pt-2 creates hover bridge, -mt-1 overlaps with button */}
+            <div className="absolute right-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+              <div className="bg-white rounded-lg shadow-lg border border-stone-200 py-1 min-w-[120px]">
               <button
                 onClick={exportPdf}
                 disabled={!content}
@@ -235,6 +236,7 @@ function DocumentEditor({ content, setContent, selection, setSelection, title, s
               >
                 Export as TXT
               </button>
+              </div>
             </div>
           </div>
 

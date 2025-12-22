@@ -24,7 +24,6 @@ function AISidebar({ documentContent, selection, onInsert, isOpen, onClose, canU
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [pendingSelection, setPendingSelection] = useState(null) // Capture selection at request time
   const [awaitingDetails, setAwaitingDetails] = useState(null) // Track if waiting for section details
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
@@ -167,8 +166,8 @@ Use their actual details. Wrap in [[INSERT]]...[[/INSERT]] tags.`
     }
 
     // Capture selection NOW before async operation (fixes replacement bug)
+    // This local variable persists through the async call, unlike state which would have stale closure
     const currentSelection = selection ? { ...selection } : null
-    setPendingSelection(currentSelection)
 
     // Check if we're awaiting details for a section
     let actualMessage = messageText
@@ -493,8 +492,9 @@ RESPONSE RULES
 
       // If there's content to insert, update the document
       if (insertContent) {
-        // Use pendingSelection (captured at request time) for accurate replacement
-        onInsert(insertContent, pendingSelection)
+        // Use currentSelection (local variable captured at request time) for accurate replacement
+        // Note: pendingSelection state would have stale closure value, so we use the local variable
+        onInsert(insertContent, currentSelection)
       }
 
       setMessages((prev) => [
@@ -506,9 +506,6 @@ RESPONSE RULES
       if (onAIUse) {
         onAIUse()
       }
-
-      // Clear pending selection
-      setPendingSelection(null)
     } catch (error) {
       console.error('AI request failed:', error)
       setMessages((prev) => [

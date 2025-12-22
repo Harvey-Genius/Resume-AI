@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import DocumentEditor from '../components/Editor/DocumentEditor'
 import AISidebar from '../components/Editor/AISidebar'
@@ -15,6 +15,34 @@ function Editor() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeEmail, setUpgradeEmail] = useState('')
   const [emailSubmitted, setEmailSubmitted] = useState(false)
+  const [aiUsesRemaining, setAiUsesRemaining] = useState(3)
+
+  // Load AI usage from localStorage on mount
+  useEffect(() => {
+    const today = new Date().toDateString()
+    const stored = localStorage.getItem('resumeai_usage')
+
+    if (stored) {
+      const data = JSON.parse(stored)
+      if (data.date === today) {
+        setAiUsesRemaining(data.remaining)
+      } else {
+        // New day, reset to 3
+        localStorage.setItem('resumeai_usage', JSON.stringify({ date: today, remaining: 3 }))
+        setAiUsesRemaining(3)
+      }
+    } else {
+      localStorage.setItem('resumeai_usage', JSON.stringify({ date: today, remaining: 3 }))
+    }
+  }, [])
+
+  // Decrement AI usage after successful generation
+  const handleAIUse = useCallback(() => {
+    const newRemaining = Math.max(0, aiUsesRemaining - 1)
+    setAiUsesRemaining(newRemaining)
+    const today = new Date().toDateString()
+    localStorage.setItem('resumeai_usage', JSON.stringify({ date: today, remaining: newRemaining }))
+  }, [aiUsesRemaining])
 
   // Handle upgrade email submission
   const handleUpgradeSubmit = (e) => {
@@ -71,7 +99,12 @@ function Editor() {
           <span className="hidden sm:inline">ResumeAI</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Usage counter */}
+          <span className="hidden sm:inline text-sm text-stone-500">
+            {aiUsesRemaining} of 3 AI uses today
+          </span>
+
           {/* Upgrade button */}
           <button
             onClick={() => setShowUpgradeModal(true)}
@@ -115,6 +148,8 @@ function Editor() {
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           onUpgradeClick={() => setShowUpgradeModal(true)}
+          canUseAI={aiUsesRemaining > 0}
+          onAIUse={handleAIUse}
         />
       </div>
 
