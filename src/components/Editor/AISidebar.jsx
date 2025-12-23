@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import QuickActions from './QuickActions'
 import ChatMessage from './ChatMessage'
+import ATSScore from './ATSScore'
+import JobMatcher from './JobMatcher'
 
 /**
  * AI Assistant sidebar component
@@ -102,7 +104,7 @@ Use their actual details. Wrap in [[INSERT]]...[[/INSERT]] tags.`
         ...prev,
         {
           role: 'assistant',
-          content: "You've used all 3 free AI improvements for today. Upgrade to Pro for unlimited access, or come back tomorrow!",
+          content: "You've used all 10 free AI improvements for today. Upgrade to Pro for unlimited access, or come back tomorrow!",
         },
       ])
       if (onUpgradeClick) onUpgradeClick()
@@ -171,7 +173,7 @@ Use their actual details. Wrap in [[INSERT]]...[[/INSERT]] tags.`
         { role: 'user', content: messageText },
         {
           role: 'assistant',
-          content: "You've used all 3 free AI improvements for today. Upgrade to Pro for unlimited access!",
+          content: "You've used all 10 free AI improvements for today. Upgrade to Pro for unlimited access!",
         },
       ])
       if (!overrideMessage) setInput('')
@@ -556,6 +558,14 @@ RESPONSE RULES
     }
   }
 
+  // Handler for JobMatcher - triggers AI to add missing keywords
+  const handleAddKeywords = (missingKeywords) => {
+    const prompt = `Help me naturally incorporate these missing keywords into my resume: ${missingKeywords.join(', ')}
+
+Suggest specific places to add these keywords and provide rewritten sections that include them naturally. Use [[INSERT]] tags for any content I should add.`
+    handleSend(prompt)
+  }
+
   return (
     <>
       {/* Mobile overlay */}
@@ -607,6 +617,15 @@ RESPONSE RULES
             hasSelection={!!selection}
             onAction={handleAction}
             disabled={isLoading}
+          />
+        </div>
+
+        {/* ATS Score & Job Matcher */}
+        <div className="px-4 py-4 space-y-3 border-b border-stone-200 bg-stone-50 flex-shrink-0">
+          <ATSScore documentContent={documentContent} />
+          <JobMatcher
+            documentContent={documentContent}
+            onAddKeywords={handleAddKeywords}
           />
         </div>
 

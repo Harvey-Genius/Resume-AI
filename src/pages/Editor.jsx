@@ -15,7 +15,8 @@ function Editor() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeEmail, setUpgradeEmail] = useState('')
   const [emailSubmitted, setEmailSubmitted] = useState(false)
-  const [aiUsesRemaining, setAiUsesRemaining] = useState(3)
+  const [aiUsesRemaining, setAiUsesRemaining] = useState(10)
+  const FREE_DAILY_LIMIT = 10
 
   // Load AI usage from localStorage on mount
   useEffect(() => {
@@ -27,12 +28,12 @@ function Editor() {
       if (data.date === today) {
         setAiUsesRemaining(data.remaining)
       } else {
-        // New day, reset to 3
-        localStorage.setItem('resumeai_usage', JSON.stringify({ date: today, remaining: 3 }))
-        setAiUsesRemaining(3)
+        // New day, reset to limit
+        localStorage.setItem('resumeai_usage', JSON.stringify({ date: today, remaining: FREE_DAILY_LIMIT }))
+        setAiUsesRemaining(FREE_DAILY_LIMIT)
       }
     } else {
-      localStorage.setItem('resumeai_usage', JSON.stringify({ date: today, remaining: 3 }))
+      localStorage.setItem('resumeai_usage', JSON.stringify({ date: today, remaining: FREE_DAILY_LIMIT }))
     }
   }, [])
 
@@ -102,7 +103,7 @@ function Editor() {
         <div className="flex items-center gap-3">
           {/* Usage counter */}
           <span className="hidden sm:inline text-sm text-stone-500">
-            {aiUsesRemaining} of 3 AI uses today
+            {aiUsesRemaining} of {FREE_DAILY_LIMIT} AI uses today
           </span>
 
           {/* Upgrade button */}
