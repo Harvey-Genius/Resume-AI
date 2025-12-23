@@ -216,21 +216,21 @@ function DocumentEditor({ content, setContent, selection, setSelection, title, s
             <div className="absolute right-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
               <div className="bg-white rounded-lg shadow-lg border border-stone-200 py-1 min-w-[120px]">
               <button
-                onClick={exportPdf}
+                onMouseDown={(e) => { e.preventDefault(); exportPdf(); }}
                 disabled={!content}
                 className="w-full text-left px-4 py-2 text-sm text-stone-700 hover:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Export as PDF
               </button>
               <button
-                onClick={exportDocx}
+                onMouseDown={(e) => { e.preventDefault(); exportDocx(); }}
                 disabled={!content}
                 className="w-full text-left px-4 py-2 text-sm text-stone-700 hover:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Export as DOCX
               </button>
               <button
-                onClick={exportTxt}
+                onMouseDown={(e) => { e.preventDefault(); exportTxt(); }}
                 disabled={!content}
                 className="w-full text-left px-4 py-2 text-sm text-stone-700 hover:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -275,6 +275,7 @@ function DocumentEditor({ content, setContent, selection, setSelection, title, s
           <div className="bg-white rounded-lg shadow-sm border border-stone-200 min-h-[500px]">
             <textarea
               ref={textareaRef}
+              data-resume-editor="true"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Paste your resume or start typing...

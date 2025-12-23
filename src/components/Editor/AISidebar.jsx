@@ -96,6 +96,19 @@ Use their actual details. Wrap in [[INSERT]]...[[/INSERT]] tags.`
 
   // Handle quick action clicks
   const handleAction = (actionId) => {
+    // Check usage limit FIRST before starting any flow
+    if (!canUseAI) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: "You've used all 3 free AI improvements for today. Upgrade to Pro for unlimited access, or come back tomorrow!",
+        },
+      ])
+      if (onUpgradeClick) onUpgradeClick()
+      return
+    }
+
     // Selection-based actions
     if (selectionPrompts[actionId]) {
       handleSend(selectionPrompts[actionId])
@@ -166,8 +179,24 @@ Use their actual details. Wrap in [[INSERT]]...[[/INSERT]] tags.`
     }
 
     // Capture selection NOW before async operation (fixes replacement bug)
-    // This local variable persists through the async call, unlike state which would have stale closure
-    const currentSelection = selection ? { ...selection } : null
+    // Try to get selection directly from DOM first (most accurate), then fall back to prop
+    let currentSelection = null
+    const textarea = document.querySelector('[data-resume-editor]')
+    if (textarea) {
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      if (start !== end) {
+        currentSelection = {
+          text: documentContent.slice(start, end),
+          start,
+          end
+        }
+      }
+    }
+    // Fall back to prop if DOM selection not available
+    if (!currentSelection && selection) {
+      currentSelection = { ...selection }
+    }
 
     // Check if we're awaiting details for a section
     let actualMessage = messageText
